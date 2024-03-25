@@ -1,0 +1,76 @@
+import numpy as np
+import pandas as pd     
+import zipfile
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Path to the zip file
+zip_file_path = "C:\\Users\\Adeyemo Bolanle\\Downloads\\netflix_data.zip"
+
+# Directory to extract the contents of the zip file
+extract_to_directory = "C:\\Users\\Adeyemo Bolanle\\Downloads\\netflix_data"
+
+# Unzipping the file
+with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+    zip_ref.extractall(extract_to_directory)
+
+print("File has been successfully unzipped.")
+import pandas as pd
+
+# Path to the unzipped CSV file
+csv_file_path = "C:\\Users\\Adeyemo Bolanle\\Downloads\\netflix_data\\netflix_data.csv"
+
+# Load the CSV file into a pandas DataFrame
+df = pd.read_csv(csv_file_path)
+
+
+
+# Replace missing values in 'director' column with "N/A"
+df['director'].fillna('N/A', inplace=True)
+
+# Replace missing values in 'cast' column with "N/A"
+df['cast'].fillna('N/A', inplace=True)
+
+# Replace missing values in 'country' column with "Unknown"
+df['country'].fillna('Unknown', inplace=True)
+
+# Drop rows with missing values in 'date_added' and 'rating' columns
+df.dropna(subset=['date_added', 'rating'], inplace=True)
+
+# Display the first few rows of the DataFrame
+print("First few rows of the dataset:")
+print(df.head())
+
+# Generate data descriptions
+print("\nData descriptions:")
+print(df.describe())
+
+# Perform statistical analysis on numerical columns
+print("\nStatistical analysis:")
+print("Number of unique directors:", df['director'].nunique())
+print("Number of unique countries:", df['country'].nunique())
+print("Number of unique ratings:", df['rating'].nunique())
+
+# Check for missing values
+print("\nMissing values:")
+print(df.isnull().sum())
+
+# Split the 'listed_in' column into separate genres
+genres = df['listed_in'].str.split(', ', expand=True).stack().value_counts()
+
+# Plot the most watched genres
+plt.figure(figsize=(10, 6))
+sns.barplot(x=genres.values, y=genres.index, palette='viridis')
+plt.title('Most Watched Genres on Netflix')
+plt.xlabel('Number of Shows/Movies')
+plt.ylabel('Genres')
+plt.savefig('most_watched_genres.png')  # Save the plot as an image file
+
+# Plot the distribution of ratings
+plt.figure(figsize=(10, 6))
+sns.countplot(x='rating', data=df, palette='coolwarm', order=df['rating'].value_counts().index)
+plt.title('Distribution of Ratings on Netflix')
+plt.xlabel('Rating')
+plt.ylabel('Number of Shows/Movies')
+plt.xticks(rotation=45)
+plt.show()
